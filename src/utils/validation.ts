@@ -17,5 +17,11 @@ export const registerSchema = z
     path: ['confirmPassword'],
   });
 
+export const updateProfileSchema = z.object({
+  name: z.string().min(1, 'Nombre es requerido'),
+  email: z.string().email('Email invalido'),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;

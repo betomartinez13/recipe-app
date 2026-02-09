@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { useAuthStore } from '../../store/auth.store';
 import { loginSchema, LoginFormData } from '../../utils/validation';
 import { Colors } from '../../constants/colors';
 import { AxiosError } from 'axios';
@@ -24,6 +25,19 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const devLogin = () => {
+    const { setAuth } = useAuthStore.getState();
+    setAuth(
+      {
+        id: 'mock-123',
+        name: 'Alberto',
+        email: 'alberto@test.com',
+        createdAt: '2026-01-15T00:00:00.000Z',
+      },
+      'mock-token-dev',
+    );
+  };
 
   const {
     control,
@@ -118,6 +132,12 @@ export default function LoginScreen() {
             No tienes cuenta? <Text style={styles.linkBold}>Registrate</Text>
           </Text>
         </TouchableOpacity>
+
+        {__DEV__ && (
+          <TouchableOpacity onPress={devLogin} style={styles.devButton}>
+            <Text style={styles.devButtonText}>Dev: Saltar login</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -169,5 +189,18 @@ const styles = StyleSheet.create({
   linkBold: {
     color: Colors.primary,
     fontWeight: '600',
+  },
+  devButton: {
+    marginTop: 24,
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: Colors.gray,
+    borderRadius: 8,
+    borderStyle: 'dashed',
+  },
+  devButtonText: {
+    color: Colors.gray,
+    fontSize: 14,
   },
 });
