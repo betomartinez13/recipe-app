@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useRecipe, useDeleteRecipe } from '../../hooks/useRecipes';
 import { useAuthStore } from '../../store/auth.store';
 import { LoadingScreen } from '../../components/common/LoadingScreen';
@@ -50,6 +50,16 @@ export default function RecipeDetailScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Stack.Screen
+        options={{
+          title: recipe.title,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+              <Text style={styles.backBtnText}>‹ Volver</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
       {/* Header */}
       <Text style={styles.title}>{recipe.title}</Text>
       {recipe.author && (
@@ -261,13 +271,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   backBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
+    paddingRight: 16,
   },
   backBtnText: {
-    color: Colors.white,
+    color: Colors.primary,
+    fontSize: 16,
     fontWeight: '600',
   },
 });
