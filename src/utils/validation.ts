@@ -25,3 +25,23 @@ export const updateProfileSchema = z.object({
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
+
+const ingredientSchema = z.object({
+  name: z.string().min(1, 'Nombre requerido'),
+  quantity: z.string().min(1, 'Cantidad requerida'),
+  unit: z.string().optional(),
+});
+
+const stepSchema = z.object({
+  description: z.string().min(1, 'Descripcion requerida'),
+});
+
+export const createRecipeSchema = z.object({
+  title: z.string().min(1, 'Titulo es requerido'),
+  description: z.string().optional(),
+  ingredients: z.array(ingredientSchema).min(1, 'Agrega al menos un ingrediente'),
+  steps: z.array(stepSchema).min(1, 'Agrega al menos un paso'),
+  groupIds: z.array(z.string()).optional(),
+});
+
+export type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
