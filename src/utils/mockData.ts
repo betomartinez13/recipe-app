@@ -6,8 +6,8 @@ export const MOCK_RECIPES: Recipe[] = [
     id: 'mock-recipe-1',
     title: 'Arroz con Pollo',
     description: 'Un clasico latinoamericano lleno de sabor.',
-    userId: 'mock-123',
-    user: { id: 'mock-123', name: 'Alberto' },
+    authorId: 'mock-123',
+    author: { id: 'mock-123', name: 'Alberto', email: 'alberto@test.com' },
     ingredients: [
       { id: 'i1', name: 'Arroz', quantity: '2', unit: 'tazas', order: 1 },
       { id: 'i2', name: 'Pollo', quantity: '500', unit: 'g', order: 2 },
@@ -18,7 +18,7 @@ export const MOCK_RECIPES: Recipe[] = [
       { id: 's2', description: 'Sofreir el arroz con aceite hasta dorar ligeramente.', order: 2 },
       { id: 's3', description: 'Agregar el caldo del pollo y las verduras. Cocinar 18 min.', order: 3 },
     ],
-    groups: [{ id: 'mock-group-1', name: 'Comidas' }],
+    groups: [{ group: { id: 'mock-group-1', name: 'Comidas' } }],
     createdAt: '2026-01-10T00:00:00.000Z',
     updatedAt: '2026-01-10T00:00:00.000Z',
   },
@@ -26,8 +26,8 @@ export const MOCK_RECIPES: Recipe[] = [
     id: 'mock-recipe-2',
     title: 'Guacamole',
     description: 'Clasico guacamole mexicano.',
-    userId: 'mock-123',
-    user: { id: 'mock-123', name: 'Alberto' },
+    authorId: 'mock-123',
+    author: { id: 'mock-123', name: 'Alberto', email: 'alberto@test.com' },
     ingredients: [
       { id: 'i4', name: 'Aguacate', quantity: '2', unit: 'piezas', order: 1 },
       { id: 'i5', name: 'Limon', quantity: '1', unit: 'pieza', order: 2 },
@@ -45,9 +45,9 @@ export const MOCK_RECIPES: Recipe[] = [
   {
     id: 'mock-recipe-3',
     title: 'Tacos de Pastor',
-    description: 'Tacos al pastor con piña y cilantro.',
-    userId: 'mock-other-user',
-    user: { id: 'mock-other-user', name: 'Cocinero' },
+    description: 'Tacos al pastor con pina y cilantro.',
+    authorId: 'mock-other-user',
+    author: { id: 'mock-other-user', name: 'Cocinero', email: 'cocinero@test.com' },
     ingredients: [
       { id: 'i7', name: 'Tortillas', quantity: '10', unit: 'piezas', order: 1 },
       { id: 'i8', name: 'Carne de cerdo', quantity: '400', unit: 'g', order: 2 },

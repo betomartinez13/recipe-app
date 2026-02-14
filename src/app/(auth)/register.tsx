@@ -110,7 +110,7 @@ export default function RegisterScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Password"
-                placeholder="Minimo 6 caracteres"
+                placeholder="Min 8 chars, mayuscula, numero"
                 secureTextEntry
                 onChangeText={onChange}
                 onBlur={onBlur}

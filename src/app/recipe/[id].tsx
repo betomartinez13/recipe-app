@@ -11,7 +11,7 @@ export default function RecipeDetailScreen() {
   const { mutate: deleteRecipe, isPending: isDeleting } = useDeleteRecipe();
   const currentUser = useAuthStore((s) => s.user);
 
-  const isOwner = recipe?.userId === currentUser?.id;
+  const isOwner = recipe?.authorId === currentUser?.id;
 
   const handleDelete = () => {
     Alert.alert(
@@ -57,8 +57,8 @@ export default function RecipeDetailScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <Text style={styles.title}>{recipe.title}</Text>
-      {recipe.user && (
-        <Text style={styles.author}>Creada por {recipe.user.name}</Text>
+      {recipe.author && (
+        <Text style={styles.author}>Creada por {recipe.author.name}</Text>
       )}
       {recipe.description ? (
         <Text style={styles.description}>{recipe.description}</Text>
@@ -69,8 +69,8 @@ export default function RecipeDetailScreen() {
         <View style={styles.section}>
           <View style={styles.chips}>
             {recipe.groups.map((g) => (
-              <View key={g.id} style={styles.chip}>
-                <Text style={styles.chipText}>{g.name}</Text>
+              <View key={g.group.id} style={styles.chip}>
+                <Text style={styles.chipText}>{g.group.name}</Text>
               </View>
             ))}
           </View>

@@ -11,8 +11,9 @@ export function useAuth() {
   const login = useCallback(
     async (data: LoginRequest) => {
       const response = await authService.login(data);
-      await storage.setToken(response.token);
-      setAuth(response.user, response.token);
+      await storage.setToken(response.accessToken);
+      await storage.setRefreshToken(response.refreshToken);
+      setAuth(response.user, response.accessToken);
     },
     [setAuth],
   );
@@ -20,8 +21,9 @@ export function useAuth() {
   const register = useCallback(
     async (data: RegisterRequest) => {
       const response = await authService.register(data);
-      await storage.setToken(response.token);
-      setAuth(response.user, response.token);
+      await storage.setToken(response.accessToken);
+      await storage.setRefreshToken(response.refreshToken);
+      setAuth(response.user, response.accessToken);
     },
     [setAuth],
   );
@@ -32,7 +34,7 @@ export function useAuth() {
     } catch {
       // Token may be expired, ignore
     }
-    await storage.removeToken();
+    await storage.clearAll();
     clearAuth();
   }, [clearAuth]);
 
@@ -46,7 +48,7 @@ export function useAuth() {
       const user = await authService.getProfile();
       setAuth(user, token);
     } catch {
-      await storage.removeToken();
+      await storage.clearAll();
       clearAuth();
     }
   }, [setAuth, clearAuth]);

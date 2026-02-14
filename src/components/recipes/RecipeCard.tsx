@@ -21,8 +21,8 @@ export function RecipeCard({ recipe, showAuthor = false, onPress }: RecipeCardPr
           </Text>
         ) : null}
         <View style={styles.footer}>
-          {showAuthor && recipe.user ? (
-            <Text style={styles.author}>por {recipe.user.name}</Text>
+          {showAuthor && recipe.author ? (
+            <Text style={styles.author}>por {recipe.author.name}</Text>
           ) : null}
           <Text style={styles.meta}>
             {recipe.ingredients.length} ingredientes · {recipe.steps.length} pasos

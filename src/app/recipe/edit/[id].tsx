@@ -45,7 +45,7 @@ export default function EditRecipeScreen() {
           unit: ing.unit ?? '',
         })),
         steps: recipe.steps.map((s) => ({ description: s.description })),
-        groupIds: recipe.groups?.map((g) => g.id) ?? [],
+        groupIds: recipe.groups?.map((g) => g.group.id) ?? [],
       });
     }
   }, [recipe, reset]);

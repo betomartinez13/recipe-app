@@ -23,7 +23,7 @@ export function useMyRecipes() {
     queryKey: ['recipes', 'mine'],
     queryFn: async () => {
       if (isMockSession()) {
-        return MOCK_RECIPES.filter((r) => r.userId === 'mock-123');
+        return MOCK_RECIPES.filter((r) => r.authorId === 'mock-123');
       }
       return recipeService.getMyRecipes();
     },
