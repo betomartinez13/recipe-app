@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGroup, useDeleteGroup } from '../../hooks/useGroups';
 import { useRemoveFromGroup } from '../../hooks/useRecipes';
+import { LoadingScreen } from '../../components/common/LoadingScreen';
 import { Colors } from '../../constants/colors';
 
 export default function GroupDetailScreen() {
@@ -56,13 +57,7 @@ export default function GroupDetailScreen() {
     ]);
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.secondary} />
-      </View>
-    );
-  }
+  if (isLoading) return <LoadingScreen color={Colors.secondary} />;
 
   if (isError || !group) {
     return (

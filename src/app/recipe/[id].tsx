@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useRecipe, useDeleteRecipe } from '../../hooks/useRecipes';
 import { useAuthStore } from '../../store/auth.store';
+import { LoadingScreen } from '../../components/common/LoadingScreen';
 import { Colors } from '../../constants/colors';
 
 export default function RecipeDetailScreen() {
@@ -34,13 +35,7 @@ export default function RecipeDetailScreen() {
     );
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
-    );
-  }
+  if (isLoading) return <LoadingScreen />;
 
   if (isError || !recipe) {
     return (

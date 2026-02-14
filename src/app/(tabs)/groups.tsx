@@ -1,32 +1,18 @@
-import { View, FlatList, TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, FlatList, TouchableOpacity, Text, RefreshControl, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useGroups } from '../../hooks/useGroups';
 import { GroupCard } from '../../components/groups/GroupCard';
 import { EmptyState } from '../../components/common/EmptyState';
+import { LoadingScreen } from '../../components/common/LoadingScreen';
+import { ErrorScreen } from '../../components/common/ErrorScreen';
 import { Colors } from '../../constants/colors';
 
 export default function GroupsScreen() {
   const router = useRouter();
-  const { data: groups, isLoading, isError, refetch } = useGroups();
+  const { data: groups, isLoading, isError, isRefetching, refetch } = useGroups();
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>Error al cargar grupos</Text>
-        <TouchableOpacity onPress={() => refetch()} style={styles.retryBtn}>
-          <Text style={styles.retryText}>Reintentar</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  if (isLoading) return <LoadingScreen color={Colors.secondary} />;
+  if (isError) return <ErrorScreen message="Error al cargar grupos" onRetry={refetch} />;
 
   return (
     <View style={styles.container}>
@@ -49,6 +35,14 @@ export default function GroupsScreen() {
           )}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor={Colors.secondary}
+              colors={[Colors.secondary]}
+            />
+          }
         />
       )}
       <TouchableOpacity
@@ -67,30 +61,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background,
-  },
   list: {
     paddingVertical: 12,
     paddingBottom: 80,
-  },
-  errorText: {
-    color: Colors.gray,
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  retryBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
-  },
-  retryText: {
-    color: Colors.white,
-    fontWeight: '600',
   },
   fab: {
     position: 'absolute',

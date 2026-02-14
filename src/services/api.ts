@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants/config';
 import { storage } from '../utils/storage';
+import { useAuthStore } from '../store/auth.store';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -40,8 +41,9 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch {
+        // Refresh failed - clear everything and send user to login
         await storage.clearAll();
-        // Auth store will be cleared by checkAuth on next app load
+        useAuthStore.getState().clearAuth();
       }
     }
 
