@@ -1,18 +1,25 @@
-import { Recipe } from './recipe.types';
-
 export interface ApiError {
   statusCode: number;
   message: string[];
   timestamp: string;
 }
 
+export interface GroupRecipe {
+  id: string;
+  title: string;
+  description?: string;
+  authorId: string;
+}
+
 export interface Group {
   id: string;
   name: string;
   description?: string;
+  userId?: string;
   recipeCount?: number;
-  recipes?: Recipe[];
+  recipes?: GroupRecipe[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateGroupRequest {
@@ -23,4 +30,8 @@ export interface CreateGroupRequest {
 export interface UpdateGroupRequest {
   name?: string;
   description?: string;
+}
+
+export interface DeleteGroupResponse {
+  deletedRecipes: number;
 }

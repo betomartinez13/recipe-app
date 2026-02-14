@@ -76,3 +76,15 @@ export function useDeleteRecipe() {
     },
   });
 }
+
+export function useRemoveFromGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ recipeId, groupId }: { recipeId: string; groupId: string }) =>
+      recipeService.removeFromGroup(recipeId, groupId),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: ['groups', groupId] });
+      queryClient.invalidateQueries({ queryKey: ['recipes'] });
+    },
+  });
+}

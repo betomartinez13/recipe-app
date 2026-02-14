@@ -69,15 +69,23 @@ export const MOCK_GROUPS: Group[] = [
     id: 'mock-group-1',
     name: 'Comidas',
     description: 'Platos principales',
+    userId: 'mock-123',
     recipeCount: 1,
+    recipes: [
+      { id: 'mock-recipe-1', title: 'Arroz con Pollo', description: 'Un clasico latinoamericano.', authorId: 'mock-123' },
+    ],
     createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 'mock-group-2',
     name: 'Entradas',
     description: 'Aperitivos y entradas',
+    userId: 'mock-123',
     recipeCount: 0,
+    recipes: [],
     createdAt: '2026-01-02T00:00:00.000Z',
+    updatedAt: '2026-01-02T00:00:00.000Z',
   },
 ];
 

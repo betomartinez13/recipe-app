@@ -50,3 +50,10 @@ export const createRecipeSchema = z.object({
 });
 
 export type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
+
+export const createGroupSchema = z.object({
+  name: z.string().min(1, 'Nombre es requerido'),
+  description: z.string().optional(),
+});
+
+export type CreateGroupFormData = z.infer<typeof createGroupSchema>;

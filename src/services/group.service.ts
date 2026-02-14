@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Group, CreateGroupRequest, UpdateGroupRequest } from '../types/api.types';
+import { Group, CreateGroupRequest, UpdateGroupRequest, DeleteGroupResponse } from '../types/api.types';
 
 export const groupService = {
   getGroups: async (): Promise<Group[]> => {
@@ -22,7 +22,8 @@ export const groupService = {
     return response.data;
   },
 
-  deleteGroup: async (id: string): Promise<void> => {
-    await api.delete(`/groups/${id}`);
+  deleteGroup: async (id: string): Promise<DeleteGroupResponse> => {
+    const response = await api.delete<DeleteGroupResponse>(`/groups/${id}`);
+    return response.data;
   },
 };
