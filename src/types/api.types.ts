@@ -8,7 +8,7 @@ export interface GroupRecipe {
   id: string;
   title: string;
   description?: string;
-  authorId: string;
+  userId: string;
 }
 
 export interface Group {

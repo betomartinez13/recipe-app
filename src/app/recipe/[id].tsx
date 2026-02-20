@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { useRecipe, useDeleteRecipe } from '../../hooks/useRecipes';
+import { useRecipe, useDeleteRecipe, useAddToGroups } from '../../hooks/useRecipes';
+import { useGroups } from '../../hooks/useGroups';
 import { useAuthStore } from '../../store/auth.store';
 import { LoadingScreen } from '../../components/common/LoadingScreen';
 import { Colors } from '../../constants/colors';
@@ -10,9 +12,25 @@ export default function RecipeDetailScreen() {
   const router = useRouter();
   const { data: recipe, isLoading, isError } = useRecipe(id);
   const { mutate: deleteRecipe, isPending: isDeleting } = useDeleteRecipe();
+  const { mutate: addToGroups, isPending: isAddingGroup } = useAddToGroups();
+  const { data: allGroups } = useGroups();
   const currentUser = useAuthStore((s) => s.user);
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
 
-  const isOwner = recipe?.authorId === currentUser?.id;
+  const isOwner = currentUser != null && recipe?.userId === currentUser.id;
+
+  const currentGroupIds = recipe?.groups?.map((g) => g.group.id) ?? [];
+  const availableGroups = (allGroups ?? []).filter((g) => !currentGroupIds.includes(g.id));
+
+  const handleAddToGroup = (groupId: string, groupName: string) => {
+    addToGroups(
+      { recipeId: id, groupIds: [groupId] },
+      {
+        onSuccess: () => setShowGroupPicker(false),
+        onError: () => Alert.alert('Error', `No se pudo agregar al grupo "${groupName}".`),
+      },
+    );
+  };
 
   const handleDelete = () => {
     Alert.alert(
@@ -62,25 +80,62 @@ export default function RecipeDetailScreen() {
       />
       {/* Header */}
       <Text style={styles.title}>{recipe.title}</Text>
-      {recipe.author && (
-        <Text style={styles.author}>Creada por {recipe.author.name}</Text>
+      {recipe.user && (
+        <Text style={styles.author}>Creada por {recipe.user.name}</Text>
       )}
       {recipe.description ? (
         <Text style={styles.description}>{recipe.description}</Text>
       ) : null}
 
       {/* Groups */}
-      {recipe.groups && recipe.groups.length > 0 ? (
-        <View style={styles.section}>
-          <View style={styles.chips}>
-            {recipe.groups.map((g) => (
-              <View key={g.group.id} style={styles.chip}>
-                <Text style={styles.chipText}>{g.group.name}</Text>
-              </View>
-            ))}
-          </View>
+      <View style={styles.section}>
+        <View style={styles.groupsRow}>
+          {recipe.groups && recipe.groups.length > 0 ? (
+            <View style={styles.chips}>
+              {recipe.groups.map((g) => (
+                <View key={g.group.id} style={styles.chip}>
+                  <Text style={styles.chipText}>{g.group.name}</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.noGroups}>Sin grupos</Text>
+          )}
+          {isOwner && (
+            <TouchableOpacity
+              style={styles.addGroupBtn}
+              onPress={() => setShowGroupPicker((v) => !v)}
+            >
+              <Text style={styles.addGroupBtnText}>+ Agregar a grupo</Text>
+            </TouchableOpacity>
+          )}
         </View>
-      ) : null}
+
+        {showGroupPicker && (
+          <View style={styles.groupPicker}>
+            {availableGroups.length === 0 ? (
+              <View style={styles.groupPickerItem}>
+                <Text style={styles.groupPickerEmptyText}>
+                  {(allGroups ?? []).length === 0
+                    ? 'No tienes grupos. Crea uno desde la pestaña Grupos.'
+                    : 'Esta receta ya esta en todos tus grupos.'}
+                </Text>
+              </View>
+            ) : (
+              availableGroups.map((g) => (
+                <TouchableOpacity
+                  key={g.id}
+                  style={styles.groupPickerItem}
+                  onPress={() => handleAddToGroup(g.id, g.name)}
+                  disabled={isAddingGroup}
+                >
+                  <Text style={styles.groupPickerItemText}>{g.name}</Text>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        )}
+      </View>
 
       {/* Ingredients */}
       <View style={styles.section}>
@@ -176,6 +231,12 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginBottom: 12,
   },
+  groupsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8,
+  },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -191,6 +252,46 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 12,
     fontWeight: '600',
+  },
+  noGroups: {
+    fontSize: 13,
+    color: Colors.gray,
+    fontStyle: 'italic',
+  },
+  addGroupBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.secondary,
+  },
+  addGroupBtnText: {
+    color: Colors.secondary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  groupPicker: {
+    marginTop: 8,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+  },
+  groupPickerItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGray,
+  },
+  groupPickerItemText: {
+    fontSize: 14,
+    color: Colors.black,
+  },
+  groupPickerEmptyText: {
+    fontSize: 13,
+    color: Colors.gray,
+    fontStyle: 'italic',
   },
   ingredientRow: {
     flexDirection: 'row',

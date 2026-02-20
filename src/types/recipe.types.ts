@@ -18,8 +18,8 @@ export interface Recipe {
   id: string;
   title: string;
   description?: string;
-  authorId: string;
-  author?: { id: string; name: string; email: string };
+  userId: string;
+  user?: { id: string; name: string; email: string };
   ingredients: Ingredient[];
   steps: Step[];
   groups?: { group: { id: string; name: string; description?: string } }[];

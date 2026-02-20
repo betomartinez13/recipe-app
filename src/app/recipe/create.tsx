@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRecipeSchema, CreateRecipeFormData } from '../../utils/validation';
-import { useCreateRecipe } from '../../hooks/useRecipes';
+import { useCreateRecipe, useMyRecipes } from '../../hooks/useRecipes';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { IngredientInput } from '../../components/recipes/IngredientInput';
@@ -14,6 +14,7 @@ import { Colors } from '../../constants/colors';
 export default function CreateRecipeScreen() {
   const router = useRouter();
   const { mutate: createRecipe, isPending } = useCreateRecipe();
+  const { data: myRecipes } = useMyRecipes();
 
   const {
     control,
@@ -36,6 +37,14 @@ export default function CreateRecipeScreen() {
   const groupIds = watch('groupIds') ?? [];
 
   const onSubmit = (data: CreateRecipeFormData) => {
+    const duplicate = (myRecipes ?? []).find(
+      (r) => r.title.trim().toLowerCase() === data.title.trim().toLowerCase(),
+    );
+    if (duplicate) {
+      setError('title', { message: 'Ya tienes una receta con ese nombre' });
+      return;
+    }
+
     const payload = {
       ...data,
       ingredients: data.ingredients.map((ing, i) => ({ ...ing, order: i + 1 })),

@@ -81,7 +81,7 @@ export default function CreateGroupScreen() {
         <Button
           title="Cancelar"
           variant="secondary"
-          onPress={() => router.back()}
+          onPress={() => router.replace('/(tabs)/groups')}
           disabled={isPending}
         />
       </View>

@@ -4,11 +4,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRecipeSchema, CreateRecipeFormData } from '../../../utils/validation';
-import { useRecipe, useUpdateRecipe } from '../../../hooks/useRecipes';
+import { useRecipe, useUpdateRecipe, useAddToGroups, useRemoveFromGroup, useMyRecipes } from '../../../hooks/useRecipes';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { IngredientInput } from '../../../components/recipes/IngredientInput';
 import { StepInput } from '../../../components/recipes/StepInput';
+import { GroupSelector } from '../../../components/groups/GroupSelector';
 import { Colors } from '../../../constants/colors';
 
 export default function EditRecipeScreen() {
@@ -16,12 +17,17 @@ export default function EditRecipeScreen() {
   const router = useRouter();
   const { data: recipe, isLoading } = useRecipe(id);
   const { mutate: updateRecipe, isPending } = useUpdateRecipe();
+  const { mutateAsync: addToGroups } = useAddToGroups();
+  const { mutateAsync: removeFromGroup } = useRemoveFromGroup();
+  const { data: myRecipes } = useMyRecipes();
 
   const {
     control,
     handleSubmit,
     setError,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CreateRecipeFormData>({
     resolver: zodResolver(createRecipeSchema),
@@ -33,6 +39,8 @@ export default function EditRecipeScreen() {
       groupIds: [],
     },
   });
+
+  const groupIds = watch('groupIds') ?? [];
 
   useEffect(() => {
     if (recipe) {
@@ -50,17 +58,41 @@ export default function EditRecipeScreen() {
     }
   }, [recipe, reset]);
 
-  const onSubmit = (data: CreateRecipeFormData) => {
+  const onSubmit = async (data: CreateRecipeFormData) => {
+    const duplicate = (myRecipes ?? []).find(
+      (r) => r.title.trim().toLowerCase() === data.title.trim().toLowerCase() && r.id !== id,
+    );
+    if (duplicate) {
+      setError('title', { message: 'Ya tienes una receta con ese nombre' });
+      return;
+    }
+
     const payload = {
-      ...data,
+      title: data.title,
+      description: data.description,
       ingredients: data.ingredients.map((ing, i) => ({ ...ing, order: i + 1 })),
       steps: data.steps.map((step, i) => ({ ...step, order: i + 1 })),
     };
 
+    const currentGroupIds = recipe?.groups?.map((g) => g.group.id) ?? [];
+    const selectedGroupIds = data.groupIds ?? [];
+    const toAdd = selectedGroupIds.filter((gId) => !currentGroupIds.includes(gId));
+    const toRemove = currentGroupIds.filter((gId) => !selectedGroupIds.includes(gId));
+
     updateRecipe(
       { id, data: payload },
       {
-        onSuccess: () => router.back(),
+        onSuccess: async () => {
+          try {
+            if (toAdd.length > 0) await addToGroups({ recipeId: id, groupIds: toAdd });
+            for (const groupId of toRemove) {
+              await removeFromGroup({ recipeId: id, groupId });
+            }
+          } catch {
+            // group sync errors are non-critical
+          }
+          router.back();
+        },
         onError: (err: any) => {
           const status = err?.response?.status;
           if (status === 409) {
@@ -120,6 +152,11 @@ export default function EditRecipeScreen() {
 
       <IngredientInput control={control} errors={errors} />
       <StepInput control={control} errors={errors} />
+
+      <GroupSelector
+        selectedIds={groupIds}
+        onChange={(ids) => setValue('groupIds', ids)}
+      />
 
       <View style={styles.footer}>
         <Button

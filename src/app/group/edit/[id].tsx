@@ -36,7 +36,7 @@ export default function EditGroupScreen() {
     updateGroup(
       { id, data },
       {
-        onSuccess: () => router.back(),
+        onSuccess: () => router.replace(`/group/${id}`),
         onError: (err: any) => {
           if (err?.response?.status === 409) {
             setError('name', { message: 'Ya tienes un grupo con ese nombre' });
@@ -102,7 +102,7 @@ export default function EditGroupScreen() {
         <Button
           title="Cancelar"
           variant="secondary"
-          onPress={() => router.back()}
+          onPress={() => router.replace(`/group/${id}`)}
           disabled={isPending}
         />
       </View>

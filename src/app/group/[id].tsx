@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useGroup, useDeleteGroup } from '../../hooks/useGroups';
-import { useRemoveFromGroup } from '../../hooks/useRecipes';
+import { useRemoveFromGroup, useAddToGroups, useMyRecipes } from '../../hooks/useRecipes';
 import { LoadingScreen } from '../../components/common/LoadingScreen';
 import { Colors } from '../../constants/colors';
 
@@ -11,6 +12,22 @@ export default function GroupDetailScreen() {
   const { data: group, isLoading, isError } = useGroup(id);
   const { mutate: deleteGroup, isPending: isDeleting } = useDeleteGroup();
   const { mutate: removeFromGroup, isPending: isRemoving } = useRemoveFromGroup();
+  const { mutate: addToGroups, isPending: isAdding } = useAddToGroups();
+  const { data: myRecipes } = useMyRecipes();
+  const [showRecipePicker, setShowRecipePicker] = useState(false);
+
+  const currentRecipeIds = group?.recipes?.map((r) => r.id) ?? [];
+  const availableRecipes = (myRecipes ?? []).filter((r) => !currentRecipeIds.includes(r.id));
+
+  const handleAddRecipe = (recipeId: string, recipeTitle: string) => {
+    addToGroups(
+      { recipeId, groupIds: [id] },
+      {
+        onSuccess: () => setShowRecipePicker(false),
+        onError: () => Alert.alert('Error', `No se pudo agregar "${recipeTitle}" al grupo.`),
+      },
+    );
+  };
 
   const handleRemoveRecipe = (recipeId: string, recipeTitle: string) => {
     Alert.alert(
@@ -63,7 +80,7 @@ export default function GroupDetailScreen() {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorTitle}>Grupo no encontrado</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => router.replace('/(tabs)/groups')} style={styles.backBtn}>
           <Text style={styles.backBtnText}>Volver</Text>
         </TouchableOpacity>
       </View>
@@ -76,7 +93,7 @@ export default function GroupDetailScreen() {
         options={{
           title: group.name,
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <TouchableOpacity onPress={() => router.replace('/(tabs)/groups')} style={styles.backBtn}>
               <Text style={styles.backBtnText}>‹ Volver</Text>
             </TouchableOpacity>
           ),
@@ -114,14 +131,54 @@ export default function GroupDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Recipes list */}
-      <Text style={styles.sectionTitle}>Recetas en este grupo</Text>
+      {/* Recipes section */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Recetas en este grupo</Text>
+        <TouchableOpacity
+          style={styles.addRecipeBtn}
+          onPress={() => setShowRecipePicker((v) => !v)}
+        >
+          <Text style={styles.addRecipeBtnText}>+ Agregar</Text>
+        </TouchableOpacity>
+      </View>
 
+      {/* Recipe picker */}
+      {showRecipePicker && (
+        <View style={styles.picker}>
+          {availableRecipes.length === 0 ? (
+            <View style={styles.pickerEmpty}>
+              <Text style={styles.pickerEmptyText}>
+                {(myRecipes ?? []).length === 0
+                  ? 'No tienes recetas aun. Crea una primero.'
+                  : 'Todas tus recetas ya estan en este grupo.'}
+              </Text>
+            </View>
+          ) : (
+            availableRecipes.map((recipe) => (
+              <TouchableOpacity
+                key={recipe.id}
+                style={styles.pickerItem}
+                onPress={() => handleAddRecipe(recipe.id, recipe.title)}
+                disabled={isAdding}
+              >
+                <Text style={styles.pickerItemTitle}>{recipe.title}</Text>
+                {recipe.description ? (
+                  <Text style={styles.pickerItemDesc} numberOfLines={1}>
+                    {recipe.description}
+                  </Text>
+                ) : null}
+              </TouchableOpacity>
+            ))
+          )}
+        </View>
+      )}
+
+      {/* Recipes list */}
       {!group.recipes || group.recipes.length === 0 ? (
         <View style={styles.emptyRecipes}>
           <Text style={styles.emptyText}>Este grupo no tiene recetas aun.</Text>
           <Text style={styles.emptySubtext}>
-            Agrega recetas desde la pantalla de crear/editar receta.
+            Usa el boton "+ Agregar" para incluir recetas en este grupo.
           </Text>
         </View>
       ) : (
@@ -224,11 +281,61 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
   sectionTitle: {
     fontSize: 17,
     fontWeight: '700',
     color: Colors.black,
-    marginBottom: 12,
+  },
+  addRecipeBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: Colors.secondary,
+  },
+  addRecipeBtnText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  picker: {
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    marginBottom: 16,
+  },
+  pickerEmpty: {
+    padding: 16,
+    backgroundColor: Colors.white,
+  },
+  pickerEmptyText: {
+    fontSize: 13,
+    color: Colors.gray,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  pickerItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGray,
+    gap: 2,
+  },
+  pickerItemTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.black,
+  },
+  pickerItemDesc: {
+    fontSize: 12,
+    color: Colors.gray,
   },
   emptyRecipes: {
     padding: 20,
