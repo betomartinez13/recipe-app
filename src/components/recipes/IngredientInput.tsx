@@ -3,6 +3,8 @@ import { Control, useFieldArray, Controller, FieldErrors } from 'react-hook-form
 import { CreateRecipeFormData } from '../../utils/validation';
 import { Colors } from '../../constants/colors';
 
+const UNITS = ['kg', 'g', 'L', 'ml'];
+
 interface IngredientInputProps {
   control: Control<CreateRecipeFormData>;
   errors: FieldErrors<CreateRecipeFormData>;
@@ -15,8 +17,9 @@ export function IngredientInput({ control, errors }: IngredientInputProps) {
     <View style={styles.container}>
       <Text style={styles.label}>Ingredientes *</Text>
       {fields.map((field, index) => (
-        <View key={field.id} style={styles.row}>
-          <View style={styles.fields}>
+        <View key={field.id} style={styles.ingredientBlock}>
+          {/* Row 1: name + quantity + remove */}
+          <View style={styles.row}>
             <Controller
               control={control}
               name={`ingredients.${index}.name`}
@@ -48,31 +51,42 @@ export function IngredientInput({ control, errors }: IngredientInputProps) {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
+                  keyboardType="numeric"
                 />
               )}
             />
-            <Controller
-              control={control}
-              name={`ingredients.${index}.unit`}
-              render={({ field: { value, onChange, onBlur } }) => (
-                <TextInput
-                  style={[styles.input, styles.inputUnit]}
-                  placeholder="Unidad"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-              )}
-            />
+            <TouchableOpacity style={styles.removeBtn} onPress={() => remove(index)}>
+              <Text style={styles.removeBtnText}>✕</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.removeBtn} onPress={() => remove(index)}>
-            <Text style={styles.removeBtnText}>✕</Text>
-          </TouchableOpacity>
+
+          {/* Row 2: unit selector */}
+          <Controller
+            control={control}
+            name={`ingredients.${index}.unit`}
+            render={({ field: { value, onChange } }) => (
+              <View style={styles.unitRow}>
+                {UNITS.map((unit) => (
+                  <TouchableOpacity
+                    key={unit}
+                    style={[styles.unitBtn, value === unit && styles.unitBtnSelected]}
+                    onPress={() => onChange(unit)}
+                  >
+                    <Text style={[styles.unitBtnText, value === unit && styles.unitBtnTextSelected]}>
+                      {unit}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          />
         </View>
       ))}
+
       {typeof errors.ingredients?.message === 'string' && (
         <Text style={styles.errorText}>{errors.ingredients.message}</Text>
       )}
+
       <TouchableOpacity
         style={styles.addBtn}
         onPress={() => append({ name: '', quantity: '', unit: '' })}
@@ -93,15 +107,18 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginBottom: 8,
   },
+  ingredientBlock: {
+    marginBottom: 10,
+    backgroundColor: Colors.white,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    padding: 10,
+    gap: 8,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 6,
-  },
-  fields: {
-    flex: 1,
-    flexDirection: 'row',
     gap: 6,
   },
   input: {
@@ -112,7 +129,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 13,
     color: Colors.black,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.background,
   },
   inputName: {
     flex: 2,
@@ -120,11 +137,33 @@ const styles = StyleSheet.create({
   inputQty: {
     flex: 1,
   },
-  inputUnit: {
-    flex: 1,
-  },
   inputError: {
     borderColor: Colors.error,
+  },
+  unitRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  unitBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+  },
+  unitBtnSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  unitBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.gray,
+  },
+  unitBtnTextSelected: {
+    color: Colors.white,
   },
   removeBtn: {
     width: 32,

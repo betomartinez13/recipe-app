@@ -81,6 +81,8 @@ export default function CreateRecipeScreen() {
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.title?.message}
+            maxLength={300}
+            showCounter
           />
         )}
       />
@@ -97,6 +99,8 @@ export default function CreateRecipeScreen() {
             onBlur={onBlur}
             multiline
             numberOfLines={3}
+            maxLength={300}
+            showCounter
           />
         )}
       />

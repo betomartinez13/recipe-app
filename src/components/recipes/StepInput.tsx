@@ -23,19 +23,28 @@ export function StepInput({ control, errors }: StepInputProps) {
             control={control}
             name={`steps.${index}.description`}
             render={({ field: { value, onChange, onBlur } }) => (
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.steps?.[index]?.description && styles.inputError,
-                ]}
-                placeholder={`Describe el paso ${index + 1}...`}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                multiline
-                numberOfLines={2}
-                textAlignVertical="top"
-              />
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.steps?.[index]?.description && styles.inputError,
+                  ]}
+                  placeholder={`Describe el paso ${index + 1}...`}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  multiline
+                  numberOfLines={2}
+                  textAlignVertical="top"
+                  maxLength={300}
+                />
+                <Text style={[
+                  styles.counter,
+                  (value?.length ?? 0) >= 255 && styles.counterNear,
+                ]}>
+                  {value?.length ?? 0}/300
+                </Text>
+              </View>
             )}
           />
           <TouchableOpacity style={styles.removeBtn} onPress={() => remove(index)}>
@@ -86,8 +95,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  input: {
+  inputWrapper: {
     flex: 1,
+  },
+  input: {
     borderWidth: 1,
     borderColor: Colors.lightGray,
     borderRadius: 8,
@@ -97,6 +108,15 @@ const styles = StyleSheet.create({
     color: Colors.black,
     backgroundColor: Colors.white,
     minHeight: 44,
+  },
+  counter: {
+    fontSize: 11,
+    color: Colors.gray,
+    textAlign: 'right',
+    marginTop: 2,
+  },
+  counterNear: {
+    color: Colors.error,
   },
   inputError: {
     borderColor: Colors.error,

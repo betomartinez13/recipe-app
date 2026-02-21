@@ -38,12 +38,12 @@ const ingredientSchema = z.object({
 });
 
 const stepSchema = z.object({
-  description: z.string().min(1, 'Descripcion requerida'),
+  description: z.string().min(1, 'Descripcion requerida').max(300, 'Maximo 300 caracteres'),
 });
 
 export const createRecipeSchema = z.object({
-  title: z.string().min(1, 'Titulo es requerido'),
-  description: z.string().optional(),
+  title: z.string().min(1, 'Titulo es requerido').max(300, 'Maximo 300 caracteres'),
+  description: z.string().max(300, 'Maximo 300 caracteres').optional(),
   ingredients: z.array(ingredientSchema).min(1, 'Agrega al menos un ingrediente'),
   steps: z.array(stepSchema).min(1, 'Agrega al menos un paso'),
   groupIds: z.array(z.string()).optional(),
